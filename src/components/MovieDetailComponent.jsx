@@ -1,10 +1,108 @@
 // import { Link, useParams } from 'react-router-dom';
 // import { getContact } from '../api/ContactService';
 // import { toastError, toastSuccess } from '../api/ToastService';
+import { useEffect, useState, useRef } from 'react';
+import { saveMovie, getMovie, updateMovie } from '../api/MovieService';
+import { data, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 
-const MovieDetailComponent = ({}) => {
-    <>
-    </>
+const MovieDetailComponent = ({ updateMovie, updateImage }) => {
+    const [movie, setMovie] = useState({
+        title: '',
+        originalTitle: '',
+        releaseYear: '',
+        rating: '',
+        country: '',
+        originalFileName: '',
+        data: [],
+        fileType: ''
+    });
+    const fileRef = useRef();
+    const { id } = useParams();
+
+    const fetchMovie = async (id) => {
+        try {
+            const { data } = await getMovie(id);
+            setMovie(data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleUpdatedMovie = async (e) => {
+        // e.preventDefault();
+        //     try {
+        //       const {data: savedMovie} = await saveMovie(movie);
+        //       const formData = new FormData();
+        //       formData.append('file', file, file.name);
+        //       formData.append('id', savedMovie.id);
+        //       const {data: image} = await updatePhoto(formData);
+        //       toggleModal(false);
+        //       setFile(undefined);
+        //       fileRef.current.value = null;
+        //       setMovie({
+        //         title: '',
+        //         originalTitle: '',
+        //         releaseYear: '',
+        //         rating: '',
+        //         country: '',
+        //         originalFileName: '',
+        //         fileType: ''
+        //       })
+        //       getMovies();
+        //     } catch (err) {
+        //       console.error(err);
+        //     }
+    };
+
+    const selectPhoto = () => {
+        fileRef.current.click();
+    };
+
+    const changePhoto = async (file) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file, file.name);
+            formData.append('id', id);
+            await updateImage(formData);
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                let dataString = reader.result;
+                dataString = dataString.substring(dataString.indexOf(";base64,")+8, dataString.length);
+                setMovie({...movie, data: dataString});
+            };
+            reader.onerror = (readerErr) => {
+                console.error({"FileReaderErr": readerErr});
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    useEffect(() => {
+        fetchMovie(id);
+    }, []);
+
+    return (
+        <>
+            <Link to={"/movies"} className="link"><i className='bi bi-arrow-left'></i> Back to List </Link>
+            <div className="profile">
+                <div className="profile__details">
+                    <img src={`data:${movie.fileType};base64,${movie.data}`} alt={`Image of movie ${movie.title}`} />
+                    <div className="profile__metadata">
+                        <p className="profile__name">{movie.title}</p>
+                        <p className="profile__muted">JPG, GIF, or PNG</p>
+                        <button onClick={selectPhoto} className='btn'><i className='bi bi-cloud-upload'></i>Change Photo</button>
+                    </div>
+                </div>
+                <div className="profile__settings"> Settings </div>
+            </div>
+            <form style={{ display: "none" }}>
+                <input type='file' ref={fileRef} onChange={(event) => changePhoto(event.target.files[0])} name="photo" accepts="image/*" />
+            </form>
+        </>
+    )
 }
 // const ContactDetail = ({ updateContact, updateImage }) => {
 //     const inputRef = useRef();

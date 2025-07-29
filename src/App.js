@@ -17,7 +17,8 @@ function App() {
     rating: '',
     country: '',
     originalFileName: '',
-    data: []
+    data: [],
+    fileType: ''
   });
   const toggleModal = show => show ? modalRef.current.showModal() : modalRef.current.close();
   const modalRef = useRef();
@@ -51,7 +52,8 @@ function App() {
         releaseYear: '',
         rating: '',
         country: '',
-        originalFileName: ''
+        originalFileName: '',
+        fileType: ''
       })
       getMovies();
     } catch (err) {
@@ -80,7 +82,7 @@ function App() {
 
   const updateImage = async (formData) => {
     try {
-      const { data: photoUrl } = await updateImage(formData);
+      const { data: originalFileName } = await updatePhoto(formData);
     } catch (err) {
       console.error(err);
     }
@@ -122,7 +124,7 @@ function App() {
                 <input type="text" value={values.originalTitle} onChange={onChange} placeholder="e.g.:기생충" name="originalTitle" />
               </div>
               <div className="input-box">
-                <span className="details">Counter</span>
+                <span className="details">Country</span>
                 <input type="text" value={values.country} placeholder="e.g.: South Korea" onChange={onChange} name="country" required />
               </div>
               <div className="input-box">
@@ -131,11 +133,11 @@ function App() {
               </div>
               <div className="input-box">
                 <span className="details">Rating</span>
-                <input className="no-spinner" type="number" min="0" max="10" step="0.1" value={values.rating} placeholder="0.0 - 5.0" onChange={onChange} onKeyDown={disableArrowKeys} name="rating" required />
+                <input className="no-spinner" type="number" min="0" max="10" step="0.1" value={values.rating} placeholder="0.0 - 10.0" onChange={onChange} onKeyDown={disableArrowKeys} name="rating" required />
               </div>
               <div className="file-input">
                 <span className="details">Image</span>
-                <input type="file" onChange={(event) => setFile(event.target.files[0])} ref={fileRef} name="photo" required />
+                <input type="file" onChange={(event) => setFile(event.target.files[0])} ref={fileRef} name="photo" accepts="image/*" required />
               </div>
             </div>
             <div className="form_footer">
